@@ -40,8 +40,8 @@ using namespace std;
 class Scan2PointCloud
 {
 public:
-	Scan2PointCloud(std::ofstream* poutofs, std::ofstream* pofsinfo){};
 	Scan2PointCloud(const std::string& strfile_ofs, const std::string& strinfo_ofs);
+	Scan2PointCloud(const ros::NodeHandle private_nh, const ros::NodeHandle &nh);
 	virtual ~Scan2PointCloud();
 
 	void scanCallback( const sensor_msgs::LaserScan::ConstPtr& scan_in );

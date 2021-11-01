@@ -32,7 +32,18 @@ m_nScanCnt(0)
 	m_outfilestream.open(strfile_ofs);
 	m_ofsinfo.open(strinfo_ofs) ;
 
-	m_ptCloudPub		= m_nh.advertise<sensor_msgs::PointCloud2>("scan_ptcloud",1);
+	m_ptCloudPub		= m_nh.advertise<sensor_msgs::PointCloud2>("cloud_in",1);
+	m_laserScanSub  	= m_nh.subscribe("base_scan", 1, &Scan2PointCloud::scanCallback, this); // kmHan
+};
+
+Scan2PointCloud::Scan2PointCloud(const ros::NodeHandle private_nh, const ros::NodeHandle &nh):
+m_nh(nh),
+m_nh_private(private_nh),
+m_nScanCnt(0)
+{
+	//m_tfListener = TransformListener(m_tfBuffer);
+
+	m_ptCloudPub		= m_nh.advertise<sensor_msgs::PointCloud2>("cloud_in",1);
 	m_laserScanSub  	= m_nh.subscribe("base_scan", 1, &Scan2PointCloud::scanCallback, this); // kmHan
 };
 
@@ -48,7 +59,7 @@ void Scan2PointCloud::scanCallback( const sensor_msgs::LaserScan::ConstPtr& scan
 
 	if(!m_tfListener.waitForTransform(
 		scan_in->header.frame_id,
-		"/base_link",
+		"base_link",
 		scan_in->header.stamp + ros::Duration().fromSec(scan_in->ranges.size()*scan_in->time_increment),
 		ros::Duration(1.0))){
 	 return;
@@ -56,7 +67,7 @@ void Scan2PointCloud::scanCallback( const sensor_msgs::LaserScan::ConstPtr& scan
 
 	tf::StampedTransform transform;
     try{
-    	m_tfListener.lookupTransform("/map", "/laser_link",
+    	m_tfListener.lookupTransform("map", "base_link",
                                ros::Time(0), transform);
     }
     catch (tf::TransformException ex){
@@ -66,26 +77,26 @@ void Scan2PointCloud::scanCallback( const sensor_msgs::LaserScan::ConstPtr& scan
     }
 
 	sensor_msgs::PointCloud cloud;
-	m_projector.transformLaserScanToPointCloud("/base_link",*scan_in, cloud, m_tfListener);
+	m_projector.transformLaserScanToPointCloud("base_link",*scan_in, cloud, m_tfListener);
 
 	// sensor pose
-	tf::Matrix3x3 Rm( transform.getRotation() ) ;
-	double roll, pit, yaw ;
-	Rm.getRPY(roll, pit, yaw);
-	m_outfilestream << "NODE " << transform.getOrigin().x() << " " << transform.getOrigin().y() << " "
-					<< transform.getOrigin().z() << " "
-					<< roll << " " << pit << " " << yaw << std::endl;
+//	tf::Matrix3x3 Rm( transform.getRotation() ) ;
+//	double roll, pit, yaw ;
+//	Rm.getRPY(roll, pit, yaw);
+//	m_outfilestream << "NODE " << transform.getOrigin().x() << " " << transform.getOrigin().y() << " "
+//					<< transform.getOrigin().z() << " "
+//					<< roll << " " << pit << " " << yaw << std::endl;
 
-	for( size_t idx=0; idx < cloud.points.size(); idx++)
-	{
-		m_outfilestream << cloud.points[idx].x << " "
-						<< cloud.points[idx].y << " "
-						<< cloud.points[idx].z << endl;
-	}
-
-	m_ofsinfo << m_nScanCnt << " " << cloud.points.size() << endl;
-
-	m_nScanCnt++;
+//	for( size_t idx=0; idx < cloud.points.size(); idx++)
+//	{
+//		m_outfilestream << cloud.points[idx].x << " "
+//						<< cloud.points[idx].y << " "
+//						<< cloud.points[idx].z << endl;
+//	}
+//
+//	m_ofsinfo << m_nScanCnt << " " << cloud.points.size() << endl;
+//
+//	m_nScanCnt++;
 
 	sensor_msgs::PointCloud2 cloud2;
 	sensor_msgs::convertPointCloudToPointCloud2(cloud, cloud2);

@@ -38,7 +38,7 @@ int main(int argc, char** argv)
 //  ofstream ofs_info( string(infofilepath) );
 //  Scan2PointCloud oScan2PtCloud( &ofs_out, &ofs_info  );
 
-  Scan2PointCloud oScan2PtCloud( stroutfile, strinfofile  );
+  Scan2PointCloud oScan2PtCloud( private_nh, nh );
 
   while( ros::ok() )
   {
