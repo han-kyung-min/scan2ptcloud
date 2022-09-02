@@ -21,7 +21,7 @@ namespace scan2cloud
 //	//m_tfListener = TransformListener(m_tfBuffer);
 //
 //	m_ptCloudPub		= m_nh.advertise<sensor_msgs::PointCloud2>("scan_ptcloud",1);
-//	m_laserScanSub  	= m_nh.subscribe("base_scan", 1, &Scan2PointCloud::scanCallback, this); // kmHan
+//	m_laserScanSub  	= m_nh.subscribe("laser_link", 1, &Scan2PointCloud::scanCallback, this); // kmHan
 //};
 
 Scan2PointCloud::Scan2PointCloud(const std::string& strfile_ofs, const std::string& strinfo_ofs):
@@ -33,7 +33,7 @@ m_nScanCnt(0)
 	m_ofsinfo.open(strinfo_ofs) ;
 
 	m_ptCloudPub		= m_nh.advertise<sensor_msgs::PointCloud2>("scan_ptcloud",1);
-	m_laserScanSub  	= m_nh.subscribe("base_scan", 1, &Scan2PointCloud::scanCallback, this); // kmHan
+	m_laserScanSub  	= m_nh.subscribe("laser_link", 1, &Scan2PointCloud::scanCallback, this); // kmHan
 };
 
 Scan2PointCloud::Scan2PointCloud(const ros::NodeHandle private_nh_, const ros::NodeHandle &nh_):
@@ -43,7 +43,7 @@ m_nh(nh_)
 	m_nScanCnt = 0;
 	ROS_INFO("instantiating the Scan2PointCloud node \n");
 	m_ptCloudPub		= m_nh.advertise<sensor_msgs::PointCloud2>("scan_ptcloud",1);
-	m_laserScanSub  	= m_nh.subscribe("scan", 1, &Scan2PointCloud::scanCallback, this); // kmHan
+	m_laserScanSub  	= m_nh.subscribe("base_scan", 1, &Scan2PointCloud::scanCallback, this); // kmHan
 };
 
 
@@ -77,7 +77,7 @@ void Scan2PointCloud::scanCallback( const sensor_msgs::LaserScan::ConstPtr& scan
 
 	tf::StampedTransform transform;
     try{
-    	m_tfListener.lookupTransform("base_link", "base_scan",
+    	m_tfListener.lookupTransform("base_link", "laser_link",
                                ros::Time(0), transform);
     }
     catch (tf::TransformException ex)
@@ -88,7 +88,7 @@ void Scan2PointCloud::scanCallback( const sensor_msgs::LaserScan::ConstPtr& scan
     }
 
 	sensor_msgs::PointCloud cloud;
-	m_projector.transformLaserScanToPointCloud("base_scan",*scan_in, cloud, m_tfListener);
+	m_projector.transformLaserScanToPointCloud("laser_link",*scan_in, cloud, m_tfListener);
 
 	ROS_INFO("cloud size: %d \n", cloud.points.size());
 
