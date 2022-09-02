@@ -1,0 +1,11 @@
+
+<!-- -->
+
+<launch>
+    <arg name="my_ns" value="robot1"/>
+    <group ns="$(arg my_ns)">
+        <node name="scan2ptcloud" pkg="scan2ptcloud" type="scan2ptcloud_node">
+            <!--remap from="base_scan" to="scan"/-->
+        </node>
+    </group>
+</launch>

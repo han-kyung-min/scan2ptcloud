@@ -122,7 +122,7 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
-  ~/catkin_ws/src/scan2ptcloud/include
+  ~/nav_ws/src/scan2ptcloud/include
 )
 
 ## Declare a C++ library

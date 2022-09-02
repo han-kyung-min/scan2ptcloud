@@ -42,6 +42,9 @@ class Scan2PointCloud
 public:
 	Scan2PointCloud(std::ofstream* poutofs, std::ofstream* pofsinfo){};
 	Scan2PointCloud(const std::string& strfile_ofs, const std::string& strinfo_ofs);
+	Scan2PointCloud(const ros::NodeHandle private_nh_ = ros::NodeHandle("~"), const ros::NodeHandle &nh_ = ros::NodeHandle()) ;
+	void initialize();
+
 	virtual ~Scan2PointCloud();
 
 	void scanCallback( const sensor_msgs::LaserScan::ConstPtr& scan_in );
