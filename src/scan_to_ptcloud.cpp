@@ -38,12 +38,21 @@ m_nScanCnt(0)
 
 Scan2PointCloud::Scan2PointCloud(const ros::NodeHandle private_nh_, const ros::NodeHandle &nh_):
 m_nh_private(private_nh_),
-m_nh(nh_)
+m_nh(nh_),
+m_baseFrameId("base_footprint")
 {
 	m_nScanCnt = 0;
 	ROS_INFO("instantiating the Scan2PointCloud node \n");
 	m_ptCloudPub		= m_nh.advertise<sensor_msgs::PointCloud2>("scan_ptcloud",1);
 	m_laserScanSub  	= m_nh.subscribe("scan", 1, &Scan2PointCloud::scanCallback, this); // kmHan
+
+//	if(!m_nh.hasParam("base_frame_id"))
+//		ROS_ERROR("No param named 'base_frame_id' \n");
+
+	//ros::param::get("~base_frame_id", m_baseFrameId);
+	m_nh_private.param("scan2ptcloud/base_frame_id", m_baseFrameId, m_baseFrameId);
+
+	ROS_WARN("baseframe id: %s\n", m_baseFrameId.c_str() );
 };
 
 
@@ -64,7 +73,6 @@ Scan2PointCloud::~Scan2PointCloud()
 
 void Scan2PointCloud::scanCallback( const sensor_msgs::LaserScan::ConstPtr& scan_in )
 {
-	ROS_INFO("in scancallback \n");
 
 //	if(!m_tfListener.waitForTransform(
 //		scan_in->header.frame_id,
@@ -77,7 +85,7 @@ void Scan2PointCloud::scanCallback( const sensor_msgs::LaserScan::ConstPtr& scan
 
 	tf::StampedTransform transform;
     try{
-    	m_tfListener.lookupTransform("base_link", "base_scan",
+    	m_tfListener.lookupTransform(m_baseFrameId, scan_in->header.frame_id,
                                ros::Time(0), transform);
     }
     catch (tf::TransformException ex)
@@ -88,7 +96,7 @@ void Scan2PointCloud::scanCallback( const sensor_msgs::LaserScan::ConstPtr& scan
     }
 
 	sensor_msgs::PointCloud cloud;
-	m_projector.transformLaserScanToPointCloud("base_scan",*scan_in, cloud, m_tfListener);
+	m_projector.transformLaserScanToPointCloud(scan_in->header.frame_id,*scan_in, cloud, m_tfListener);
 
 	ROS_INFO("cloud size: %d \n", cloud.points.size());
 

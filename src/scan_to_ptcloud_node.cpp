@@ -16,8 +16,8 @@ using namespace scan2cloud;
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "scan2ptcloud");
-  const ros::NodeHandle nh;
-  const ros::NodeHandle private_nh("~");
+  ros::NodeHandle nh;
+  ros::NodeHandle private_nh("~");
 
   ros::WallTime start_, end_;
   if(0) //argc !=3)
@@ -27,6 +27,8 @@ int main(int argc, char** argv)
   }
 
   Scan2PointCloud oScan2PtCloud((private_nh, nh)) ;
+  ros::spinOnce();
+  ROS_WARN("scan2ptcloud initialized \n");
 //  oScan2PtCloud.initialize();
 
   while( ros::ok() )
